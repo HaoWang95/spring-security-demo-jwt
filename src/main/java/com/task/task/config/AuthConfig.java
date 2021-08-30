@@ -76,7 +76,9 @@ public class AuthConfig extends WebSecurityConfigurerAdapter {
                 // For endpoints under test, authentication and authorization is required.
                 .antMatchers("/test").permitAll()
                 .anyRequest().authenticated();
-        //
+        // Configure http with authTokeFilter() which is our jwt implementation
+        // Spring Security is a filter-based framework that we either enable existing filter provided
+        // in Spring Security or we add our customized filter.
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 }
