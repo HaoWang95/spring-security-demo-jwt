@@ -1,9 +1,9 @@
 package com.task.task.controller;
 
-import com.task.task.models.Role;
 import com.task.task.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,17 +28,27 @@ public class TestEndpoint {
     }
 
     @GetMapping("/testRoles")
+    @PreAuthorize("hasAnyRole('user','admin')")
     public ResponseEntity<?> findRolesTest(){
         return ResponseEntity.ok(List.of(roleRepository.findAll()));
     }
 
+
     @GetMapping("/greeting")
+    @PreAuthorize("hasRole('user')")
     public String greeting(){
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
-        return "Hello, "+ authentication.getName();
+        return "Hello, "
+                + authentication.getName() +
+                ", your role is "+ authentication.getAuthorities();
     }
 
+    /**
+     * Endpoint with admin access only
+     * @return ResponseEntity with a list of all roles
+     */
+    @PreAuthorize("hasRole('admin')")
     @GetMapping("/roles")
     public ResponseEntity<?> findRoles(){
         return ResponseEntity.ok(List.of(roleRepository.findAll()));
