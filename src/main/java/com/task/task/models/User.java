@@ -22,7 +22,8 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToMany
+    // Set the FetchType to FetchType.EAGER or it will report the lazy-loading error
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name="user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 

@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -32,6 +33,9 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    PasswordEncoder encoder;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -51,21 +55,25 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Email exists");
         }
 
-        User user = new User(signUpBody.getUsername(), signUpBody.getEmail(),signUpBody.getPassword());
+        User user = new User(
+                signUpBody.getUsername(),
+                signUpBody.getEmail(),
+                encoder.encode(signUpBody.getPassword())
+                );
         Set<String> roles = signUpBody.getRoles();
         Set<Role> roleSet = new HashSet<Role>();
-        if(roles.isEmpty()){
+        if(roles == null){
             // By default, set it to user
-            Role userRole = roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow();
+            Role userRole = roleRepository.findByRoleType(RoleType.user).orElseThrow();
             roleSet.add(userRole);
         }else {
             roles.forEach(role -> {
                 if (role.equals("admin")){
-                    Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow();
+                    Role admin = roleRepository.findByRoleType(RoleType.admin).orElseThrow();
                     roleSet.add(admin);
                 }
                 if(role.equals("user")){
-                    Role client = roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow();
+                    Role client = roleRepository.findByRoleType(RoleType.user).orElseThrow();
                     roleSet.add(client);
                 }
             });

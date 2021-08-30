@@ -16,7 +16,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -66,11 +65,12 @@ public class AuthConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(anthenticationJwtEntry).and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/").permitAll()
+                // Permit signup, login and logout request
+                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
+                // For endpoints under test, authentication and authorization is required.
                 .antMatchers("/test").permitAll()
                 .anyRequest().authenticated();
         //
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
-
 }
