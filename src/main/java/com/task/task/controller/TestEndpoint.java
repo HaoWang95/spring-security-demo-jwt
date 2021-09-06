@@ -1,6 +1,7 @@
 package com.task.task.controller;
 
 import com.task.task.repositories.RoleRepository;
+import com.task.task.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,9 @@ public class TestEndpoint {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/")
     public String testIndex(){
         return "Test endpoint";
@@ -42,6 +46,12 @@ public class TestEndpoint {
         return "Hello, "
                 + authentication.getName() +
                 ", your role is "+ authentication.getAuthorities();
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> findUsers(){
+        return ResponseEntity.ok(List.of(userRepository.findAll()));
     }
 
     /**
